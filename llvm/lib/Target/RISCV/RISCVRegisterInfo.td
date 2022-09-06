@@ -260,6 +260,79 @@ def FPR64C : RegisterClass<"RISCV", [f64], 64, (add
   (sequence "F%u_D", 8, 9)
 )>;
 
+// Posit Floating point registers
+let RegAltNameIndices = [ABIRegAltName] in {
+  def P0_H  : RISCVReg16<0, "p0",  ["pt0"]>,  DwarfRegNum<[-1]>;
+  def P1_H  : RISCVReg16<1, "p1",  ["pt1"]>,  DwarfRegNum<[-1]>;
+  def P2_H  : RISCVReg16<2, "p2",  ["pt2"]>,  DwarfRegNum<[-1]>;
+  def P3_H  : RISCVReg16<3, "p3",  ["pt3"]>,  DwarfRegNum<[-1]>;
+  def P4_H  : RISCVReg16<4, "p4",  ["pt4"]>,  DwarfRegNum<[-1]>;
+  def P5_H  : RISCVReg16<5, "p5",  ["pt5"]>,  DwarfRegNum<[-1]>;
+  def P6_H  : RISCVReg16<6, "p6",  ["pt6"]>,  DwarfRegNum<[-1]>;
+  def P7_H  : RISCVReg16<7, "p7",  ["pt7"]>,  DwarfRegNum<[-1]>;
+  def P8_H  : RISCVReg16<8, "p8",  ["ps0"]>,  DwarfRegNum<[-1]>;
+  def P9_H  : RISCVReg16<9, "p9",  ["ps1"]>,  DwarfRegNum<[-1]>;
+  def P10_H : RISCVReg16<10,"p10", ["pa0"]>,  DwarfRegNum<[-1]>;
+  def P11_H : RISCVReg16<11,"p11", ["pa1"]>,  DwarfRegNum<[-1]>;
+  def P12_H : RISCVReg16<12,"p12", ["pa2"]>,  DwarfRegNum<[-1]>;
+  def P13_H : RISCVReg16<13,"p13", ["pa3"]>,  DwarfRegNum<[-1]>;
+  def P14_H : RISCVReg16<14,"p14", ["pa4"]>,  DwarfRegNum<[-1]>;
+  def P15_H : RISCVReg16<15,"p15", ["pa5"]>,  DwarfRegNum<[-1]>;
+  def P16_H : RISCVReg16<16,"p16", ["pa6"]>,  DwarfRegNum<[-1]>;
+  def P17_H : RISCVReg16<17,"p17", ["pa7"]>,  DwarfRegNum<[-1]>;
+  def P18_H : RISCVReg16<18,"p18", ["ps2"]>,  DwarfRegNum<[-1]>;
+  def P19_H : RISCVReg16<19,"p19", ["ps3"]>,  DwarfRegNum<[-1]>;
+  def P20_H : RISCVReg16<20,"p20", ["ps4"]>,  DwarfRegNum<[-1]>;
+  def P21_H : RISCVReg16<21,"p21", ["ps5"]>,  DwarfRegNum<[-1]>;
+  def P22_H : RISCVReg16<22,"p22", ["ps6"]>,  DwarfRegNum<[-1]>;
+  def P23_H : RISCVReg16<23,"p23", ["ps7"]>,  DwarfRegNum<[-1]>;
+  def P24_H : RISCVReg16<24,"p24", ["ps8"]>,  DwarfRegNum<[-1]>;
+  def P25_H : RISCVReg16<25,"p25", ["ps9"]>,  DwarfRegNum<[-1]>;
+  def P26_H : RISCVReg16<26,"p26", ["ps10"]>, DwarfRegNum<[-1]>;
+  def P27_H : RISCVReg16<27,"p27", ["ps11"]>, DwarfRegNum<[-1]>;
+  def P28_H : RISCVReg16<28,"p28", ["pt8"]>,  DwarfRegNum<[-1]>;
+  def P29_H : RISCVReg16<29,"p29", ["pt9"]>,  DwarfRegNum<[-1]>;
+  def P30_H : RISCVReg16<30,"p30", ["pt10"]>, DwarfRegNum<[-1]>;
+  def P31_H : RISCVReg16<31,"p31", ["pt11"]>, DwarfRegNum<[-1]>;
+
+  foreach Index = 0-31 in {
+    def P#Index#_F : RISCVReg32<!cast<RISCVReg16>("P"#Index#"_H")>,
+      DwarfRegNum<[-1]>;
+  }
+
+  foreach Index = 0-31 in {
+    def P#Index#_D : RISCVReg64<!cast<RISCVReg32>("P"#Index#"_F")>,
+      DwarfRegNum<[-1]>;
+  }
+
+}
+
+// The order of registers represents the preferred allocation sequence,
+// meaning caller-save regs are listed before callee-save.
+def PosR16 : RegisterClass<"RISCV", [f16], 16, (add
+    (sequence "P%u_H", 0, 7),
+    (sequence "P%u_H", 10, 17),
+    (sequence "P%u_H", 28, 31),
+    (sequence "P%u_H", 8, 9),
+    (sequence "P%u_H", 18, 27)
+)>;
+
+def PosR32 : RegisterClass<"RISCV", [f32], 32, (add
+    (sequence "P%u_F", 0, 7),
+    (sequence "P%u_F", 10, 17),
+    (sequence "P%u_F", 28, 31),
+    (sequence "P%u_F", 8, 9),
+    (sequence "P%u_F", 18, 27)
+)>;
+
+def PosR64 : RegisterClass<"RISCV", [f64], 64, (add
+    (sequence "P%u_D", 0, 7),
+    (sequence "P%u_D", 10, 17),
+    (sequence "P%u_D", 28, 31),
+    (sequence "P%u_D", 8, 9),
+    (sequence "P%u_D", 18, 27)
+)>;
+
 // Vector type mapping to LLVM types.
 //
 // The V vector extension requires that VLEN >= 128 and <= 65536.

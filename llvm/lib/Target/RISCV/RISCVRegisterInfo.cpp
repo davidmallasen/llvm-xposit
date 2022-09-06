@@ -39,6 +39,15 @@ static_assert(RISCV::F31_F == RISCV::F0_F + 31,
 static_assert(RISCV::F1_D == RISCV::F0_D + 1, "Register list not consecutive");
 static_assert(RISCV::F31_D == RISCV::F0_D + 31,
               "Register list not consecutive");
+static_assert(RISCV::P1_H == RISCV::P0_H + 1, "Register list not consecutive");
+static_assert(RISCV::P31_H == RISCV::P0_H + 31,
+              "Register list not consecutive");
+static_assert(RISCV::P1_F == RISCV::P0_F + 1, "Register list not consecutive");
+static_assert(RISCV::P31_F == RISCV::P0_F + 31,
+              "Register list not consecutive");
+static_assert(RISCV::P1_D == RISCV::P0_D + 1, "Register list not consecutive");
+static_assert(RISCV::P31_D == RISCV::P0_D + 31,
+              "Register list not consecutive");
 static_assert(RISCV::V1 == RISCV::V0 + 1, "Register list not consecutive");
 static_assert(RISCV::V31 == RISCV::V0 + 31, "Register list not consecutive");
 

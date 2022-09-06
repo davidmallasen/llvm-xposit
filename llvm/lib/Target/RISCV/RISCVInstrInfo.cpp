@@ -279,6 +279,9 @@ void RISCVInstrInfo::copyPhysReg(MachineBasicBlock &MBB,
   } else if (RISCV::FPR64RegClass.contains(DstReg, SrcReg)) {
     Opc = RISCV::FSGNJ_D;
     IsScalableVector = false;
+  } else if (RISCV::PosR32RegClass.contains(DstReg, SrcReg)) {
+    Opc = RISCV::PSGNJ_S;
+    IsScalableVector = false;
   } else if (RISCV::VRRegClass.contains(DstReg, SrcReg)) {
     Opc = RISCV::PseudoVMV1R_V;
     LMul = RISCVII::LMUL_1;

@@ -978,6 +978,11 @@ static MCRegister convertFPR64ToFPR32(MCRegister Reg) {
   return Reg - RISCV::F0_D + RISCV::F0_F;
 }
 
+static MCRegister convertPosR64ToPosR32(MCRegister Reg) {
+  assert(Reg >= RISCV::P0_D && Reg <= RISCV::P31_D && "Invalid register");
+  return Reg - RISCV::P0_D + RISCV::P0_F;
+}
+
 static MCRegister convertVRToVRMx(const MCRegisterInfo &RI, MCRegister Reg,
                                   unsigned Kind) {
   unsigned RegClassID;
@@ -1005,6 +1010,8 @@ unsigned RISCVAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
   bool IsRegFPR64C =
       RISCVMCRegisterClasses[RISCV::FPR64CRegClassID].contains(Reg);
   bool IsRegVR = RISCVMCRegisterClasses[RISCV::VRRegClassID].contains(Reg);
+  bool IsRegPosR64 =
+      RISCVMCRegisterClasses[RISCV::PosR64RegClassID].contains(Reg);
 
   // As the parser couldn't differentiate an FPR32 from an FPR64, coerce the
   // register from FPR64 to FPR32 or FPR64C to FPR32C if necessary.
@@ -1025,6 +1032,12 @@ unsigned RISCVAsmParser::validateTargetOperandClass(MCParsedAsmOperand &AsmOp,
     Op.Reg.RegNum = convertVRToVRMx(*getContext().getRegisterInfo(), Reg, Kind);
     if (Op.Reg.RegNum == 0)
       return Match_InvalidOperand;
+    return Match_Success;
+  }
+  // As the parser couldn't differentiate an PosR32 from an PosR64, coerce the
+  // register from PosR64 to PosR32 if necessary.
+  if (IsRegPosR64 && Kind == MCK_PosR32) {
+    Op.Reg.RegNum = convertPosR64ToPosR32(Reg);
     return Match_Success;
   }
   return Match_InvalidOperand;

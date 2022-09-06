@@ -345,6 +345,13 @@ def HasVInstructionsAnyF : Predicate<"Subtarget->hasVInstructionsAnyF()">,
           "'V' (Vector Extension for Application Processors), 'Zve32f', "
           "'Zve64f' or 'Zve64d' (Vector Extensions for Embedded Processors)">;
 
+def FeatureExtXPosit
+    : SubtargetFeature<"xposit", "HasExtXPosit", "true",
+                       "'XPosit' (Single-Precision Posit)">;
+def HasExtXPosit : Predicate<"Subtarget->hasExtXPosit()">,
+                             AssemblerPredicate<(all_of FeatureExtXPosit),
+                             "'XPosit' (Single-Precision Posit)">;
+
 def Feature64Bit
     : SubtargetFeature<"64bit", "HasRV64", "true", "Implements RV64">;
 def IsRV64 : Predicate<"Subtarget->is64Bit()">,

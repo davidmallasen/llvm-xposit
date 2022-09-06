@@ -833,8 +833,8 @@ void RISCVFrameLowering::determineCalleeSaves(MachineFunction &MF,
       const MCPhysReg * Regs = MF.getRegInfo().getCalleeSavedRegs();
 
       for (unsigned i = 0; Regs[i]; ++i)
-        if (RISCV::FPR16RegClass.contains(Regs[i]) ||
-            RISCV::FPR32RegClass.contains(Regs[i]) ||
+        if (RISCV::FPR16RegClass.contains(Regs[i])  ||
+            RISCV::FPR32RegClass.contains(Regs[i])  ||
             RISCV::FPR64RegClass.contains(Regs[i]))
           SavedRegs.set(Regs[i]);
     }

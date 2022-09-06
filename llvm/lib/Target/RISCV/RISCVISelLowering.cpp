@@ -86,12 +86,18 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
   // Set up the register classes.
   addRegisterClass(XLenVT, &RISCV::GPRRegClass);
 
-  if (Subtarget.hasStdExtZfh())
+  if (Subtarget.hasStdExtZfh()) {
     addRegisterClass(MVT::f16, &RISCV::FPR16RegClass);
-  if (Subtarget.hasStdExtF())
+  }
+  if (Subtarget.hasStdExtF()) {
     addRegisterClass(MVT::f32, &RISCV::FPR32RegClass);
-  if (Subtarget.hasStdExtD())
+  }
+  if (Subtarget.hasStdExtD()) {
     addRegisterClass(MVT::f64, &RISCV::FPR64RegClass);
+  }
+  if (Subtarget.hasExtXPosit()) {
+    addRegisterClass(MVT::f32, &RISCV::PosR32RegClass);
+  }
 
   static const MVT::SimpleValueType BoolVecVTs[] = {
       MVT::nxv1i1,  MVT::nxv2i1,  MVT::nxv4i1, MVT::nxv8i1,
@@ -8430,6 +8436,7 @@ static bool isSelectPseudo(MachineInstr &MI) {
   case RISCV::Select_FPR16_Using_CC_GPR:
   case RISCV::Select_FPR32_Using_CC_GPR:
   case RISCV::Select_FPR64_Using_CC_GPR:
+  case RISCV::Select_PosR32_Using_CC_GPR:
     return true;
   }
 }
@@ -8606,6 +8613,7 @@ RISCVTargetLowering::EmitInstrWithCustomInserter(MachineInstr &MI,
   case RISCV::Select_FPR16_Using_CC_GPR:
   case RISCV::Select_FPR32_Using_CC_GPR:
   case RISCV::Select_FPR64_Using_CC_GPR:
+  case RISCV::Select_PosR32_Using_CC_GPR:
     return emitSelectPseudo(MI, BB, Subtarget);
   case RISCV::BuildPairF64Pseudo:
     return emitBuildPairF64Pseudo(MI, BB);
@@ -8682,6 +8690,18 @@ static const MCPhysReg ArgFPR32s[] = {
 static const MCPhysReg ArgFPR64s[] = {
   RISCV::F10_D, RISCV::F11_D, RISCV::F12_D, RISCV::F13_D,
   RISCV::F14_D, RISCV::F15_D, RISCV::F16_D, RISCV::F17_D
+};
+static const MCPhysReg ArgPosR16s[] = {
+  RISCV::P10_H, RISCV::P11_H, RISCV::P12_H, RISCV::P13_H,
+  RISCV::P14_H, RISCV::P15_H, RISCV::P16_H, RISCV::P17_H
+};
+static const MCPhysReg ArgPosR32s[] = {
+  RISCV::P10_F, RISCV::P11_F, RISCV::P12_F, RISCV::P13_F,
+  RISCV::P14_F, RISCV::P15_F, RISCV::P16_F, RISCV::P17_F
+};
+static const MCPhysReg ArgPosR64s[] = {
+  RISCV::P10_D, RISCV::P11_D, RISCV::P12_D, RISCV::P13_D,
+  RISCV::P14_D, RISCV::P15_D, RISCV::P16_D, RISCV::P17_D
 };
 // This is an interim calling convention and it may be changed in the future.
 static const MCPhysReg ArgVRs[] = {
@@ -9227,6 +9247,16 @@ static bool CC_RISCV_FastCC(const DataLayout &DL, RISCVABI::ABI ABI,
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
     }
+
+    static const MCPhysReg PosR32List[] = {
+        RISCV::P10_F, RISCV::P11_F, RISCV::P12_F, RISCV::P13_F, RISCV::P14_F,
+        RISCV::P15_F, RISCV::P16_F, RISCV::P17_F, RISCV::P0_F,  RISCV::P1_F,
+        RISCV::P2_F,  RISCV::P3_F,  RISCV::P4_F,  RISCV::P5_F,  RISCV::P6_F,
+        RISCV::P7_F,  RISCV::P28_F, RISCV::P29_F, RISCV::P30_F, RISCV::P31_F};
+    if (unsigned Reg = State.AllocateReg(PosR32List)) {
+      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
+      return false;
+    }
   }
 
   if (LocVT == MVT::f64) {
@@ -9309,6 +9339,14 @@ static bool CC_RISCV_GHC(unsigned ValNo, MVT ValVT, MVT LocVT,
                                           RISCV::F18_F, RISCV::F19_F,
                                           RISCV::F20_F, RISCV::F21_F};
     if (unsigned Reg = State.AllocateReg(FPR32List)) {
+      State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
+      return false;
+    }
+
+    static const MCPhysReg PosR32List[] = {RISCV::P8_F, RISCV::P9_F,
+                                           RISCV::P18_F, RISCV::P19_F,
+                                           RISCV::P20_F, RISCV::P21_F};
+    if (unsigned Reg = State.AllocateReg(PosR32List)) {
       State.addLoc(CCValAssign::getReg(ValNo, ValVT, Reg, LocVT, LocInfo));
       return false;
     }
@@ -10206,6 +10244,10 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
       if (Subtarget.hasStdExtD() && VT == MVT::f64)
         return std::make_pair(0U, &RISCV::FPR64RegClass);
       break;
+    case 'p':
+      if (Subtarget.hasExtXPosit() && VT == MVT::f32)
+        return std::make_pair(0U, &RISCV::PosR32RegClass);
+      break;
     default:
       break;
     }
@@ -10317,6 +10359,47 @@ RISCVTargetLowering::getRegForInlineAsmConstraint(const TargetRegisterInfo *TRI,
         unsigned HReg = RISCV::F0_H + RegNo;
         return std::make_pair(HReg, &RISCV::FPR16RegClass);
       }
+    }
+  }
+
+  if (Subtarget.hasExtXPosit()) {
+    unsigned PosReg = StringSwitch<unsigned>(Constraint.lower())
+                        .Cases("{p0}", "{pt0}", RISCV::P0_F)
+                        .Cases("{p1}", "{pt1}", RISCV::P1_F)
+                        .Cases("{p2}", "{pt2}", RISCV::P2_F)
+                        .Cases("{p3}", "{pt3}", RISCV::P3_F)
+                        .Cases("{p4}", "{pt4}", RISCV::P4_F)
+                        .Cases("{p5}", "{pt5}", RISCV::P5_F)
+                        .Cases("{p6}", "{pt6}", RISCV::P6_F)
+                        .Cases("{p7}", "{pt7}", RISCV::P7_F)
+                        .Cases("{p8}", "{ps0}", RISCV::P8_F)
+                        .Cases("{p9}", "{ps1}", RISCV::P9_F)
+                        .Cases("{p10}", "{pa0}", RISCV::P10_F)
+                        .Cases("{p11}", "{pa1}", RISCV::P11_F)
+                        .Cases("{p12}", "{pa2}", RISCV::P12_F)
+                        .Cases("{p13}", "{pa3}", RISCV::P13_F)
+                        .Cases("{p14}", "{pa4}", RISCV::P14_F)
+                        .Cases("{p15}", "{pa5}", RISCV::P15_F)
+                        .Cases("{p16}", "{pa6}", RISCV::P16_F)
+                        .Cases("{p17}", "{pa7}", RISCV::P17_F)
+                        .Cases("{p18}", "{ps2}", RISCV::P18_F)
+                        .Cases("{p19}", "{ps3}", RISCV::P19_F)
+                        .Cases("{p20}", "{ps4}", RISCV::P20_F)
+                        .Cases("{p21}", "{ps5}", RISCV::P21_F)
+                        .Cases("{p22}", "{ps6}", RISCV::P22_F)
+                        .Cases("{p23}", "{ps7}", RISCV::P23_F)
+                        .Cases("{p24}", "{ps8}", RISCV::P24_F)
+                        .Cases("{p25}", "{ps9}", RISCV::P25_F)
+                        .Cases("{p26}", "{ps10}", RISCV::P26_F)
+                        .Cases("{p27}", "{ps11}", RISCV::P27_F)
+                        .Cases("{p28}", "{pt8}", RISCV::P28_F)
+                        .Cases("{p29}", "{pt9}", RISCV::P29_F)
+                        .Cases("{p30}", "{pt10}", RISCV::P30_F)
+                        .Cases("{p31}", "{pt11}", RISCV::P31_F)
+                        .Default(RISCV::NoRegister);
+    if (PosReg != RISCV::NoRegister) {
+      assert(RISCV::P0_F <= PosReg && PosReg <= RISCV::P31_F && "Unknown pos-reg");
+      return std::make_pair(PosReg, &RISCV::PosR32RegClass);
     }
   }
 
