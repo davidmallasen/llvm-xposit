@@ -1,3 +1,75 @@
+# Xposit RISC-V custom extension for posit arithmetic
+
+This repository contains the LLVM compilation support for posit arithmetic that can be used together with the PERCIVAL posit RISC-V core available here: https://github.com/artecs-group/PERCIVAL
+
+## Publication
+
+The Xposit extension was introduced in the following paper, if you use it in your academic work you can cite us:
+
+```
+@article{mallasen2022PERCIVAL,
+  title = {PERCIVAL: Open-Source Posit RISC-V Core With Quire Capability},
+  author = {Mallasén, David and Murillo, Raul and Del Barrio, Alberto A. and Botella, Guillermo and Piñuel, Luis and Prieto-Matias, Manuel},
+  year = {2022},
+  journal = {IEEE Transactions on Emerging Topics in Computing},
+  volume = {10},
+  number = {3},
+  pages = {1241-1252},
+  issn = {2168-6750},
+  doi = {10.1109/TETC.2022.3187199}
+}
+```
+
+## Getting started
+
+As well as this repository, you will need the RISC-V gcc toolchain.
+
+0. Install some pre-requisites:
+~~~
+sudo apt install \
+  binutils build-essential libtool texinfo \
+  gzip zip unzip patchutils curl git \
+  make cmake ninja-build automake bison flex gperf \
+  grep sed gawk python bc \
+  zlib1g-dev libexpat1-dev libmpc-dev \
+  libglib2.0-dev libfdt-dev libpixman-1-dev 
+~~~
+
+1. Install the RISC-V gcc toolchain following the instructions in https://github.com/riscv-collab/riscv-gnu-toolchain for newlib multilib. When you are done, you should have a riscv64-unknown-elf-gcc compiler. Remember to add the bin directory to your path.
+
+2. Clone, build, and install this repository to a `llvm-riscv` directory.
+~~~
+mkdir llvm-riscv && cd llvm-riscv
+mkdir _install
+export PATH=`pwd`/_install/bin:$PATH
+git clone https://github.com/artecs-group/llvm-xposit.git
+cd llvm-xposit
+ln -s ../../clang llvm/tools || true
+mkdir _build && cd _build
+~~~
+When building LLVM with the next command, change the path to the riscv64-unknown-elf in your system installed at step 1.
+~~~
+cmake -G Ninja \
+        -DCMAKE_BUILD_TYPE="Debug" \
+        -DBUILD_SHARED_LIBS=True \
+        -DLLVM_USE_SPLIT_DWARF=True \
+        -DCMAKE_INSTALL_PREFIX="../../_install" \
+        -DLLVM_OPTIMIZED_TABLEGEN=True \
+        -DLLVM_BUILD_TESTS=True \
+        -DDEFAULT_SYSROOT="/path/to/riscv64-unknown-elf" \
+        -DLLVM_DEFAULT_TARGET_TRIPLE="riscv64-unknown-elf" \
+        -DLLVM_TARGETS_TO_BUILD="RISCV" \
+        -DLLVM_ENABLE_PROJECTS=clang \
+        ../llvm
+cmake --build . --target install -j`nproc`
+~~~
+
+3. Compile a test application. For example the [posit_testsuite_llvm.c](https://github.com/artecs-group/PERCIVAL/blob/posit-master/posit_testsuite_llvm.c) of PERCIVAL.
+~~~
+clang --target=riscv64 -march=rv64gcxposit posit_testsuite_llvm.c -c -o posit_testsuite_llvm.o
+riscv64-unknown-elf-gcc posit_testsuite_llvm.o -o posit_testsuite_llvm.elf
+~~~
+
 # The LLVM Compiler Infrastructure
 
 This directory and its sub-directories contain source code for LLVM,
