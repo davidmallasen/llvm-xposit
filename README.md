@@ -70,6 +70,9 @@ clang --target=riscv64 -march=rv64gcxposit posit_testsuite_llvm.c -c -o posit_te
 riscv64-unknown-elf-gcc posit_testsuite_llvm.o -o posit_testsuite_llvm.elf
 ~~~
 
+## Acknowledgments
+This work was supported in part by the 2020 Leonardo Grant for Researchers and Cultural Creators, from BBVA Foundation under Grant PR2003_20/01, and in part by the Spanish MINECO, the EU(FEDER), and Comunidad de Madrid under Grants RTI2018-093684-B-I00 and S2018/TCS-4423.
+
 # The LLVM Compiler Infrastructure
 
 This directory and its sub-directories contain source code for LLVM,
