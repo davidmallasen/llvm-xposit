@@ -67,5 +67,8 @@ TARGET_BUILTIN(__builtin_riscv_fsr_32, "LiLiLiLi", "nc", "experimental-zbt")
 TARGET_BUILTIN(__builtin_riscv_fsl_64, "WiWiWiWi", "nc", "experimental-zbt,64bit")
 TARGET_BUILTIN(__builtin_riscv_fsr_64, "WiWiWiWi", "nc", "experimental-zbt,64bit")
 
+// Xposit extension
+TARGET_BUILTIN(__builtin_riscv_qclr, "v", "n", "xposit")
+
 #undef BUILTIN
 #undef TARGET_BUILTIN

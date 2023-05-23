@@ -501,6 +501,8 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
 
   setBooleanContents(ZeroOrOneBooleanContent);
 
+  setOperationAction(ISD::INTRINSIC_VOID, MVT::Other, Custom);
+
   if (Subtarget.hasVInstructions()) {
     setBooleanVectorContents(ZeroOrOneBooleanContent);
 
@@ -520,7 +522,6 @@ RISCVTargetLowering::RISCVTargetLowering(const TargetMachine &TM,
     }
 
     setOperationAction(ISD::INTRINSIC_W_CHAIN, MVT::Other, Custom);
-    setOperationAction(ISD::INTRINSIC_VOID, MVT::Other, Custom);
 
     static const unsigned IntegerVPOps[] = {
         ISD::VP_ADD,         ISD::VP_SUB,         ISD::VP_MUL,
@@ -4674,6 +4675,12 @@ SDValue RISCVTargetLowering::LowerINTRINSIC_VOID(SDValue Op,
     return DAG.getMemIntrinsicNode(ISD::INTRINSIC_VOID, DL, Store->getVTList(),
                                    Ops, Store->getMemoryVT(),
                                    Store->getMemOperand());
+  }
+  case Intrinsic::riscv_qclr: {
+    SDLoc DL(Op);
+    // The result of INTRINSIC_VOID is the Chain result with type MVT::Other. 
+    // The first operand is the chain input also with type MVT::Other.
+    return DAG.getNode(RISCVISD::QCLR, DL, MVT::Other, Op->getOperand(0));
   }
   }
 
@@ -10191,6 +10198,7 @@ const char *RISCVTargetLowering::getTargetNodeName(unsigned Opcode) const {
   NODE_NAME_CASE(READ_CSR)
   NODE_NAME_CASE(WRITE_CSR)
   NODE_NAME_CASE(SWAP_CSR)
+  NODE_NAME_CASE(QCLR)
   }
   // clang-format on
   return nullptr;

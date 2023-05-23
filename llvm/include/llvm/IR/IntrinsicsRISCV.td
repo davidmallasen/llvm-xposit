@@ -137,6 +137,15 @@ let TargetPrefix = "riscv" in {
 } // TargetPrefix = "riscv"
 
 //===----------------------------------------------------------------------===//
+// Xposit
+
+let TargetPrefix = "riscv" in {
+  // See llvm/include/llvm/IR/Intrinsics.td
+  def int_riscv_qclr :
+        Intrinsic<[], [], [IntrWriteMem, IntrHasSideEffects]>;
+} // TargetPrefix = "riscv"
+
+//===----------------------------------------------------------------------===//
 // Vectors
 
 // The intrinsic does not have any operand that must be extended.

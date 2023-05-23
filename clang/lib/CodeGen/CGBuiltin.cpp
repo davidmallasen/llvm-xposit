@@ -18872,6 +18872,12 @@ Value *CodeGenFunction::EmitRISCVBuiltinExpr(unsigned BuiltinID,
     IntrinsicTypes = {ResultType};
     break;
   }
+  // Xposit
+  case RISCV::BI__builtin_riscv_qclr:
+    ID = Intrinsic::riscv_qclr;
+    // No overloads, so IntrinsicTypes should be empty
+    break;
+
   // Vector builtins are handled from here.
 #include "clang/Basic/riscv_vector_builtin_cg.inc"
   }

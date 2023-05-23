@@ -27,16 +27,20 @@ def riscv_fmv_x_anyextw_rv64
     : SDNode<"RISCVISD::FMV_X_ANYEXTW_RV64", SDT_RISCVFMV_X_ANYEXTW_RV64>;
 */
 
+// For SDTypeProfile see llvm/include/llvm/Target/TargetSelectionDAG.td
+def riscv_qclr
+    : SDNode<"RISCVISD::QCLR", SDTNone, [SDNPHasChain]>;
+
 //===----------------------------------------------------------------------===//
 // Instruction class templates
 //===----------------------------------------------------------------------===//
 
-let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+let hasSideEffects = 1, mayLoad = 0, mayStore = 0 in
 class PosQMAS_rr<bits<7> funct7, string opcodestr>
     : RVInstR<funct7, 0b000, OPC_POSIT, (outs),
               (ins PosR32:$rs1, PosR32:$rs2), opcodestr, "$rs1, $rs2">;
 
-let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
+let hasSideEffects = 1, mayLoad = 0, mayStore = 0 in
 class PosQEmpty<bits<7> funct7, string opcodestr>
     : RVInstR<funct7, 0b000, OPC_POSIT, (outs), (ins), opcodestr, "">;
 
@@ -238,6 +242,15 @@ def PseudoPSD  : PseudoStore<"psd", PosR32>;
 //===----------------------------------------------------------------------===//
 // Pseudo-instructions and codegen patterns
 //===----------------------------------------------------------------------===//
+
+// For the Pat class see llvm/include/llvm/Target/TargetSelectionDAG.td
+let Predicates = [HasExtXPosit] in {
+
+// Quire clear intrinsic
+def : Pat<(riscv_qclr), (QCLR_S)>;
+
+} // Predicates = [HasExtXPosit]
+
 /*
 /// Floating point constants
 //def fpimm0 : PatLeaf<(fpimm), [{ return N->isExactlyValue(+0.0); }]>;
