@@ -35,36 +35,41 @@ sudo apt install \
   libglib2.0-dev libfdt-dev libpixman-1-dev 
 ~~~
 
-1. Install the RISC-V gcc toolchain following the instructions in https://github.com/riscv-collab/riscv-gnu-toolchain for newlib multilib. When you are done, you should have a riscv64-unknown-elf-gcc compiler. Remember to add the bin directory to your path.
+1. Install the RISC-V gcc toolchain following the instructions in https://github.com/riscv-collab/riscv-gnu-toolchain for newlib multilib. When you are done, you should have a `riscv64-unknown-elf-gcc` or a `riscv32-unknown-elf-gcc` compiler. Remember to add the bin directory to your path. If you are compiling for PERCIVAL, use the `riscv64` option.
 
-2. Clone, build, and install this repository to a `llvm-riscv` directory.
+2. Clone, build, and install this repository. The `XPOSIT_INSTALL_DIR` can be the same directory where the RISC-V gcc toolchain is installed. Change `riscv64-unknown-elf` to `riscv32-unknown-elf` depending on your needs and the gcc toolchain installed in the previous step.
 ~~~
-mkdir llvm-riscv && cd llvm-riscv
-mkdir _install
-export PATH=`pwd`/_install/bin:$PATH
+export XPOSIT_INSTALL_DIR="/path/to/dir"
+export XPOSIT_GCC_DIR="/path/to/riscv64-unknown-elf"
+export XPOSIT_TARGET="riscv64-unknown-elf"
+mkdir -p $XPOSIT_INSTALL_DIR
+
 git clone https://github.com/artecs-group/llvm-xposit.git
 cd llvm-xposit
 ln -s ../../clang llvm/tools || true
-mkdir _build && cd _build
-~~~
-When building LLVM with the next command, change the path to the riscv64-unknown-elf in your system installed at step 1.
-~~~
+mkdir build && cd build
+
 cmake -G Ninja \
         -DCMAKE_BUILD_TYPE="Debug" \
         -DBUILD_SHARED_LIBS=True \
         -DLLVM_USE_SPLIT_DWARF=True \
-        -DCMAKE_INSTALL_PREFIX="../../_install" \
+        -DCMAKE_INSTALL_PREFIX=$XPOSIT_INSTALL_DIR \
         -DLLVM_OPTIMIZED_TABLEGEN=True \
         -DLLVM_BUILD_TESTS=True \
-        -DDEFAULT_SYSROOT="/path/to/riscv64-unknown-elf" \
-        -DLLVM_DEFAULT_TARGET_TRIPLE="riscv64-unknown-elf" \
+        -DDEFAULT_SYSROOT=$XPOSIT_GCC_DIR \
+        -DLLVM_DEFAULT_TARGET_TRIPLE=$XPOSIT_TARGET \
         -DLLVM_TARGETS_TO_BUILD="RISCV" \
         -DLLVM_ENABLE_PROJECTS=clang \
         ../llvm
 cmake --build . --target install -j`nproc`
 ~~~
+3. Add the Xposit clang compiler to your path. Add this in your `.bashrc` if you want it persistent.
+~~~
+export XPOSIT_INSTALL_DIR="/path/to/dir"
+export PATH="$PATH:$XPOSIT_INSTALL_DIR/bin"
+~~~
 
-3. Compile a test application. For example the [posit_testsuite_llvm.c](https://github.com/artecs-group/PERCIVAL/blob/posit-master/posit_testsuite_llvm.c) of PERCIVAL.
+4. Compile a test application. For example the [posit_testsuite_llvm.c](https://github.com/artecs-group/PERCIVAL/blob/posit-master/posit_testsuite_llvm.c) of PERCIVAL. Change to `riscv32` and `rv32` depending on your installation.
 ~~~
 clang --target=riscv64 -march=rv64gcxposit posit_testsuite_llvm.c -c -o posit_testsuite_llvm.o
 riscv64-unknown-elf-gcc posit_testsuite_llvm.o -o posit_testsuite_llvm.elf
