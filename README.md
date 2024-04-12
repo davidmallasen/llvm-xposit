@@ -35,18 +35,18 @@ sudo apt install \
   libglib2.0-dev libfdt-dev libpixman-1-dev 
 ~~~
 
-1. Install the RISC-V gcc toolchain following the instructions in https://github.com/riscv-collab/riscv-gnu-toolchain for newlib multilib. When you are done, you should have a `riscv64-unknown-elf-gcc` and a `riscv32-unknown-elf-gcc` compiler. Remember to add the bin directory to your path.
+1. Install the RISC-V gcc toolchain following the instructions in [https://github.com/riscv-collab/riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/tree/f133b299b95065aaaf040e18b578fea6bbef532e) for newlib. When you are done, you should have a `riscv64-unknown-elf-gcc`compiler. Remember to add the bin directory to your path. If you wish to install the `riscv32` compiler with floating-point support, add the following flags to the `./configure` line: `--with-abi=ilp32d --with-arch=rv32gc`. For more options see the [Installation (linux)](https://github.com/riscv-collab/riscv-gnu-toolchain/tree/f133b299b95065aaaf040e18b578fea6bbef532e?tab=readme-ov-file#installation-linux) section of their README.
 ~~~
 export XPOSIT_GCC_INSTALL_DIR="/path/to/dir"
 mkdir -p $XPOSIT_GCC_INSTALL_DIR
 git clone https://github.com/riscv/riscv-gnu-toolchain
 cd riscv-gnu-toolchain/
 git checkout f133b299b95065aaaf040e18b578fea6bbef532e
-./configure --prefix=$XPOSIT_GCC_INSTALL_DIR --enable-multilib
+./configure --prefix=$XPOSIT_GCC_INSTALL_DIR
 make -j`nproc`
 ~~~
 
-2. Clone, build, and install this repository. The `XPOSIT_INSTALL_DIR` can be the same directory where the RISC-V gcc toolchain is installed `XPOSIT_GCC_INSTALL_DIR`. Change `riscv64-unknown-elf` to `riscv32-unknown-elf` depending on your needs. If you are compiling for PERCIVAL, use the `riscv64` option.
+2. Clone, build, and install this repository. The `XPOSIT_INSTALL_DIR` can be the same directory where the RISC-V gcc toolchain is installed (i.e. `XPOSIT_GCC_INSTALL_DIR`). Change `riscv64-unknown-elf` to `riscv32-unknown-elf` depending on your needs. If you are compiling for PERCIVAL, use the `riscv64` option.
 ~~~
 export XPOSIT_INSTALL_DIR="/path/to/dir"
 export XPOSIT_GCC_DIR="/path/to/riscv64-unknown-elf"
