@@ -49,7 +49,7 @@ make -j`nproc`
 2. Clone, build, and install this repository. The `XPOSIT_INSTALL_DIR` can be the same directory where the RISC-V gcc toolchain is installed (i.e. `XPOSIT_GCC_INSTALL_DIR`). Change `riscv64-unknown-elf` to `riscv32-unknown-elf` depending on your needs. If you are compiling for PERCIVAL, use the `riscv64` option.
 ~~~
 export XPOSIT_INSTALL_DIR="/path/to/dir"
-export XPOSIT_GCC_DIR="/path/to/riscv64-unknown-elf"
+export XPOSIT_GCC_DIR=$XPOSIT_GCC_INSTALL_DIR/riscv64-unknown-elf
 export XPOSIT_TARGET="riscv64-unknown-elf"
 mkdir -p $XPOSIT_INSTALL_DIR
 
