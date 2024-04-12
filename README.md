@@ -35,7 +35,11 @@ sudo apt install \
   libglib2.0-dev libfdt-dev libpixman-1-dev 
 ~~~
 
-1. Install the RISC-V gcc toolchain following the instructions in [https://github.com/riscv-collab/riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/tree/f133b299b95065aaaf040e18b578fea6bbef532e) for newlib multilib. When you are done, you should have a `riscv64-unknown-elf-gcc`compiler. Remember to add the bin directory to your path. If you wish to install the `riscv32` compiler with floating-point support, add the following flags to the `./configure` line: `--with-abi=ilp32d --with-arch=rv32gc`. For more options see the [Installation (linux)](https://github.com/riscv-collab/riscv-gnu-toolchain/tree/f133b299b95065aaaf040e18b578fea6bbef532e?tab=readme-ov-file#installation-linux) section of their README.
+1. Install the RISC-V gcc toolchain following the instructions in [https://github.com/riscv-collab/riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain/tree/f133b299b95065aaaf040e18b578fea6bbef532e) for newlib multilib, or follow the ones below. When you are done, you should have a `riscv64-unknown-elf-gcc`compiler. Remember to add the bin directory to your path as done for the `.bashrc` in step 3 below.
+
+> **_NOTE 1:_** If you wish to install the `riscv32` compiler with floating-point support, add the following flags to the `./configure` line: `--with-abi=ilp32d --with-arch=rv32gc`. For more options see the [Installation (linux)](https://github.com/riscv-collab/riscv-gnu-toolchain/tree/f133b299b95065aaaf040e18b578fea6bbef532e?tab=readme-ov-file#installation-linux) section of their README.
+
+> **_NOTE 2:_** A typical installation directory could be `export XPOSIT_GCC_INSTALL_DIR=$HOME/tools/riscv`.
 ~~~
 export XPOSIT_GCC_INSTALL_DIR="/path/to/dir"
 mkdir -p $XPOSIT_GCC_INSTALL_DIR
