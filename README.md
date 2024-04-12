@@ -35,9 +35,18 @@ sudo apt install \
   libglib2.0-dev libfdt-dev libpixman-1-dev 
 ~~~
 
-1. Install the RISC-V gcc toolchain following the instructions in https://github.com/riscv-collab/riscv-gnu-toolchain for newlib multilib. When you are done, you should have a `riscv64-unknown-elf-gcc` or a `riscv32-unknown-elf-gcc` compiler. Remember to add the bin directory to your path. If you are compiling for PERCIVAL, use the `riscv64` option.
+1. Install the RISC-V gcc toolchain following the instructions in https://github.com/riscv-collab/riscv-gnu-toolchain for newlib multilib. When you are done, you should have a `riscv64-unknown-elf-gcc` and a `riscv32-unknown-elf-gcc` compiler. Remember to add the bin directory to your path.
+~~~
+export XPOSIT_GCC_INSTALL_DIR="/path/to/dir"
+mkdir -p $XPOSIT_GCC_INSTALL_DIR
+git clone https://github.com/riscv/riscv-gnu-toolchain
+cd riscv-gnu-toolchain/
+git checkout f133b299b95065aaaf040e18b578fea6bbef532e
+./configure --prefix=$XPOSIT_GCC_INSTALL_DIR --enable-multilib
+make -j`nproc`
+~~~
 
-2. Clone, build, and install this repository. The `XPOSIT_INSTALL_DIR` can be the same directory where the RISC-V gcc toolchain is installed. Change `riscv64-unknown-elf` to `riscv32-unknown-elf` depending on your needs and the gcc toolchain installed in the previous step.
+2. Clone, build, and install this repository. The `XPOSIT_INSTALL_DIR` can be the same directory where the RISC-V gcc toolchain is installed `XPOSIT_GCC_INSTALL_DIR`. Change `riscv64-unknown-elf` to `riscv32-unknown-elf` depending on your needs. If you are compiling for PERCIVAL, use the `riscv64` option.
 ~~~
 export XPOSIT_INSTALL_DIR="/path/to/dir"
 export XPOSIT_GCC_DIR="/path/to/riscv64-unknown-elf"
@@ -63,9 +72,12 @@ cmake -G Ninja \
         ../llvm
 cmake --build . --target install -j`nproc`
 ~~~
-3. Add the Xposit clang compiler to your path. Add this in your `.bashrc` if you want it persistent.
+
+3. Add the RISC-V gcc and Xposit clang compilers to your path. Add this in your `.bashrc` if you want it persistent.
 ~~~
+export XPOSIT_GCC_INSTALL_DIR="/path/to/dir"
 export XPOSIT_INSTALL_DIR="/path/to/dir"
+export PATH="$PATH:$XPOSIT_GCC_INSTALL_DIR/bin"
 export PATH="$PATH:$XPOSIT_INSTALL_DIR/bin"
 ~~~
 
