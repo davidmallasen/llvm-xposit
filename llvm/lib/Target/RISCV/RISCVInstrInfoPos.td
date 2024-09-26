@@ -37,32 +37,32 @@ def riscv_qclr
 
 let hasSideEffects = 1, mayLoad = 0, mayStore = 0 in
 class PosQMAS_rr<bits<7> funct7, string opcodestr>
-    : RVInstR<funct7, 0b000, OPC_POSIT, (outs),
+    : RVInstR<funct7, 0b111, OPC_POSIT, (outs),
               (ins PosR32:$rs1, PosR32:$rs2), opcodestr, "$rs1, $rs2">;
 
 let hasSideEffects = 1, mayLoad = 0, mayStore = 0 in
 class PosQEmpty<bits<7> funct7, string opcodestr>
-    : RVInstR<funct7, 0b000, OPC_POSIT, (outs), (ins), opcodestr, "">;
+    : RVInstR<funct7, 0b111, OPC_POSIT, (outs), (ins), opcodestr, "">;
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
 class PosQ_d<bits<7> funct7, string opcodestr>
-    : RVInstR<funct7, 0b000, OPC_POSIT, (outs PosR32:$rd), (ins), opcodestr, 
+    : RVInstR<funct7, 0b111, OPC_POSIT, (outs PosR32:$rd), (ins), opcodestr, 
               "$rd">;
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
 class PosALUS_rr<bits<7> funct7, string opcodestr>
-    : RVInstR<funct7, 0b000, OPC_POSIT, (outs PosR32:$rd),
+    : RVInstR<funct7, 0b111, OPC_POSIT, (outs PosR32:$rd),
               (ins PosR32:$rs1, PosR32:$rs2), opcodestr, "$rd, $rs1, $rs2">;
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
 class PosUnaryOp_r<bits<7> funct7, RegisterClass rdty, RegisterClass rs1ty, 
                    string opcodestr>
-    : RVInstR<funct7, 0b000, OPC_POSIT, (outs rdty:$rd), (ins rs1ty:$rs1),
+    : RVInstR<funct7, 0b111, OPC_POSIT, (outs rdty:$rd), (ins rs1ty:$rs1),
               opcodestr, "$rd, $rs1">;
 
 let hasSideEffects = 0, mayLoad = 0, mayStore = 0 in
 class PosCmpS_rr<bits<7> funct7, string opcodestr>
-    : RVInstR<funct7, 0b000, OPC_POSIT, (outs GPR:$rd),
+    : RVInstR<funct7, 0b111, OPC_POSIT, (outs GPR:$rd),
               (ins PosR32:$rs1, PosR32:$rs2), opcodestr, "$rd, $rs1, $rs2">,
       Sched<[]>;
 
@@ -72,31 +72,31 @@ class PosCmpS_rr<bits<7> funct7, string opcodestr>
 
 let Predicates = [HasExtXPosit] in {
 let hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
-def PLW : RVInstI<0b001, OPC_POSIT, (outs PosR32:$rd),
+def PLW : RVInstI<0b101, OPC_POSIT, (outs PosR32:$rd),
                   (ins GPR:$rs1, simm12:$imm12),
                    "plw", "$rd, ${imm12}(${rs1})">,
           Sched<[]>;
 
-let hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
-def PLD : RVInstI<0b101, OPC_POSIT, (outs PosR32:$rd),
-                  (ins GPR:$rs1, simm12:$imm12),
-                   "pld", "$rd, ${imm12}(${rs1})">,
-          Sched<[]>;
+// let hasSideEffects = 0, mayLoad = 1, mayStore = 0 in
+// def PLD : RVInstI<0b101, OPC_POSIT, (outs PosR32:$rd),
+//                   (ins GPR:$rs1, simm12:$imm12),
+//                    "pld", "$rd, ${imm12}(${rs1})">,
+//           Sched<[]>;
 
 // Operands for stores are in the order srcreg, base, offset rather than
 // reflecting the order these fields are specified in the instruction
 // encoding.
 let hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
-def PSW : RVInstS<0b011, OPC_POSIT, (outs),
+def PSW : RVInstS<0b110, OPC_POSIT, (outs),
                   (ins PosR32:$rs2, GPR:$rs1, simm12:$imm12),
                    "psw", "$rs2, ${imm12}(${rs1})">,
           Sched<[]>;
 
-let hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
-def PSD : RVInstS<0b110, OPC_POSIT, (outs),
-                  (ins PosR32:$rs2, GPR:$rs1, simm12:$imm12),
-                   "psd", "$rs2, ${imm12}(${rs1})">,
-          Sched<[]>;
+// let hasSideEffects = 0, mayLoad = 0, mayStore = 1 in
+// def PSD : RVInstS<0b110, OPC_POSIT, (outs),
+//                   (ins PosR32:$rs2, GPR:$rs1, simm12:$imm12),
+//                    "psd", "$rs2, ${imm12}(${rs1})">,
+//           Sched<[]>;
 
 def QMADD_S  : PosQMAS_rr<0b0011110, "qmadd.s">,
                Sched<[]>{
@@ -214,8 +214,8 @@ def PCVT_S_LU : PosUnaryOp_r<0b1001110, PosR32, GPR, "pcvt.s.lu">,
 let Predicates = [HasExtXPosit] in {
 def : InstAlias<"plw $rd, (${rs1})",  (PLW PosR32:$rd,  GPR:$rs1, 0), 0>;
 def : InstAlias<"psw $rs2, (${rs1})", (PSW PosR32:$rs2, GPR:$rs1, 0), 0>;
-def : InstAlias<"pld $rd, (${rs1})",  (PLD PosR32:$rd,  GPR:$rs1, 0), 0>;
-def : InstAlias<"psd $rs2, (${rs1})", (PSD PosR32:$rs2, GPR:$rs1, 0), 0>;
+// def : InstAlias<"pld $rd, (${rs1})",  (PLD PosR32:$rd,  GPR:$rs1, 0), 0>;
+// def : InstAlias<"psd $rs2, (${rs1})", (PSD PosR32:$rs2, GPR:$rs1, 0), 0>;
 
 def : InstAlias<"pmv.s $rd, $rs",  (PSGNJ_S  PosR32:$rd, PosR32:$rs, PosR32:$rs)>;
 def : InstAlias<"pabs.s $rd, $rs", (PSGNJX_S PosR32:$rd, PosR32:$rs, PosR32:$rs)>;
@@ -235,8 +235,8 @@ def : MnemonicAlias<"pmv.x.s", "pmv.x.w">;
 
 def PseudoPLW  : PseudoFloatLoad<"plw", PosR32>;
 def PseudoPSW  : PseudoStore<"psw", PosR32>;
-def PseudoPLD  : PseudoFloatLoad<"pld", PosR32>;
-def PseudoPSD  : PseudoStore<"psd", PosR32>;
+// def PseudoPLD  : PseudoFloatLoad<"pld", PosR32>;
+// def PseudoPSD  : PseudoStore<"psd", PosR32>;
 } // Predicates = [HasExtXPosit]
 
 //===----------------------------------------------------------------------===//
